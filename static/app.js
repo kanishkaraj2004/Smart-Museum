@@ -132,7 +132,93 @@ async function handleAnswer(question){
         console.error(error);
     }
 }
+async function handleAnswer(question){
 
+    if(question==="⬅ Back"){
+        chatOptions.innerHTML="";
+        showMainMenu();
+        return;
+    }
+
+    addMessage(question,true);
+
+    // ✅ LOCAL BACKUP ANSWERS
+    const answers = {
+
+        "Will I be allowed entry if I arrive late?":
+        "Yes, entry is usually allowed within a short grace period. Please check with staff.",
+
+        "Is a mobile ticket acceptable or do I need a printed ticket?":
+        "Mobile tickets are accepted. Printing is not required.",
+
+        "My payment was deducted but I did not receive a ticket. What should I do?":
+        "Please check your email or contact the museum support desk.",
+
+        "When will I receive my refund?":
+        "Refunds are processed within 5-7 working days.",
+
+        "When is the least crowded time to visit?":
+        "Weekday mornings are the least crowded.",
+
+        "Is morning better or evening for visiting the museum?":
+        "Morning is recommended for the best experience.",
+
+        "Will it be comfortable to visit during summer?":
+        "Yes, museums are air-conditioned.",
+
+        "Is the museum open during rain?":
+        "Yes, museums remain open during rain.",
+
+        "Where are the washrooms located?":
+        "Washrooms are available near the entrance.",
+
+        "Is drinking water available inside the museum?":
+        "Yes, drinking water is available.",
+
+        "Is a wheelchair available for visitors?":
+        "Yes, wheelchair facility is available.",
+
+        "What should I do if a child gets lost inside the museum?":
+        "Contact museum staff immediately.",
+
+        "Is a guide available inside the museum?":
+        "Yes, guides are available.",
+
+        "Is an audio guide available for visitors?":
+        "No, audio guides are not available.",
+
+        "Can I take photos or make reels inside the museum?":
+        "Yes, photography is allowed without flash.",
+
+        "Can students take photos for academic projects?":
+        "Yes, academic photography is allowed."
+    };
+
+    try {
+        const response = await fetch("https://smart-museum-1-zzyi.onrender.com/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: question })
+        });
+
+        const data = await response.json();
+
+        if(data.reply){
+            addMessage(data.reply);
+        } else {
+            // ⚠️ fallback to local
+            addMessage(answers[question] || "Sorry, I couldn't find an answer.");
+        }
+
+    } catch (error) {
+        console.log("API failed, using local answers");
+
+        // ⚠️ fallback if server down
+        addMessage(answers[question] || "Server error, please try again later.");
+    }
+}
 
 // ------------------ INIT ------------------
 showMainMenu();
